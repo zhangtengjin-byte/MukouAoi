@@ -1,0 +1,62 @@
+# =============================================================================
+# Mukou Aoi — Hermes Agent 人格化引擎配置示例
+# =============================================================================
+# 将此文件复制到 ~/.hermes/config.yaml 并按照注释修改
+# 参考 docs/*.md 了解每个组件的详细信息
+
+# ==================== 插件配置 ====================
+plugins:
+  # 情绪系统 - 核心插件
+  emotion-governor:
+    enabled: true
+    # 情绪衰减间隔（分钟）
+    decay_interval_min: 30
+
+  # 模式切换 - @work / @life
+  mode-switch:
+    enabled: true
+    # 生活模式字数限制倍率（用户输入长度 × 倍率）
+    life_multiplier: 2
+
+# ==================== Hermes 基础配置 ====================
+provider: deepseek   # 或其他兼容 OpenAI API 的 provider
+model: deepseek-v4-flash
+
+# ==================== 平台配置 ====================
+platforms:
+  # QQ 官方 Bot 通道（私聊）
+  qq:
+    enabled: true
+    extra:
+      app_id: "your-app-id"
+      client_secret: "your-client-secret"
+      dm_policy: open         # open | allowlist | disabled
+      markdown_support: true
+
+  # Webhook 通道（用于 NapCat 群聊桥接）
+  webhook:
+    enabled: true
+    extra:
+      host: 0.0.0.0
+      port: 8766
+      # 更多 webhook 配置见 docs/NAPCAT_BRIDGE.md
+
+# ==================== 工具配置 ====================
+tools:
+  # 技能目录 - 存放复用的 AI Skill 文档
+  skills_dir: ~/.hermes/skills
+
+# ==================== 记忆系统 ====================
+memory:
+  # ChromaDB 持久化路径
+  db_path: ~/.hermes/chroma_db
+  # 每 N 轮对话自动存档
+  auto_ingest_interval: 5
+  # 检索返回的记忆条数
+  retrieval_count: 5
+
+# ==================== 情绪系统文件路径 ====================
+# tone_map.json、emotion_map.json、emotion.json
+# 默认路径：~/.hermes/
+# 若存放于其他位置，可通过 emotion-governor 插件源码中的
+# _HERMES_HOME 变量配置

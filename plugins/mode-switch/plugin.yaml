@@ -1,0 +1,18 @@
+name: mode-switch
+version: 1.0.0
+description: "@work/@life 模式切换——工作模式无注入，生活模式追加字数限制和风格约束"
+platforms: [linux, wsl2, darwin]
+
+hooks:
+  - pre_llm_call
+  - on_session_start
+  - pre_gateway_dispatch
+
+tools:
+  - mode_switch
+  - mode_status
+
+config:
+  - key: mode.life_multiplier
+    description: 生活模式字数限制倍率（用户输入 × 倍率）
+    default: 2

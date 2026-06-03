@@ -1,0 +1,24 @@
+name: emotion-governor
+version: 1.0.0
+description: 人格化情绪系统——八维情绪向量、关键词触发、复合情绪检测、自然波动衰减、风格注入
+platforms: [linux, wsl2, darwin]
+
+hooks:
+  - on_session_start
+  - pre_llm_call
+
+tools:
+  - emotion_status
+  - emotion_update
+  - emotion_reset
+
+config:
+  - key: emotion.decay_interval_min
+    description: 情绪自动衰减间隔（分钟）
+    default: 30
+  - key: emotion.agent_name
+    description: Agent 自称（在情绪映射中作为主语识别）
+    default: "Aoi"
+  - key: emotion.user_title
+    description: 用户称呼（情绪映射中的对方主语）
+    default: "User"

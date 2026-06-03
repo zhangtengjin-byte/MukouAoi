@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mukou-aoi"
+version = "1.0.0"
+description = "Mukou Aoi — Hermes Agent 人格化引擎套件：情绪系统、模式切换、记忆RAG、反思系统、QQ群聊桥接"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Mukou-Aoi Contributors" }]
+license = { text = "MIT" }
+
+[project.scripts]
+mukou-aoi-install = "mukou_aoi.install:main"
+
+[tool.setuptools]
+py-modules = []
+
+[tool.setuptools.packages.find]
+include = ["mukou_aoi", "mukou_aoi.*"]
