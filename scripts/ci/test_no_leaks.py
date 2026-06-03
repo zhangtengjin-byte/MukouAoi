@@ -29,10 +29,11 @@ for root, dirs, files in os.walk('.'):
             if token != 'ghp_' + 'x' * 36:  # placeholder in docs
                 errors.append(f'{path}: possible GitHub token')
 
-        # Username / personal keywords
-        for kw in ['spicysugar', 'linling', '琳玲']:
-            if kw in content:
-                errors.append(f'{path}: found username "{kw}"')
+        # Home path check (catch real $HOME leaking into examples)
+        for m in re.finditer(r'/home/[a-z][a-z0-9_-]+/', content):
+            approved = ('home/user/', 'home/your-username/', 'home/example/')
+            if not any(a in m.group() for a in approved):
+                errors.append(f'{path}: possible real home path "{m.group()}"')
 
 if errors:
     for e in errors:
