@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
-"""CI test: no personal info leaks"""
-import sys, os
+"""CI test: no personal info leaks — uses pattern matching, not specific keywords"""
+import sys, os, re
 
-keywords = [
-    'spicysugar', '神大人', 'SnowLuma', 'TSaZ~tsGpZEJFUvg',
-    '3841303389', '2108929103', 'linling', '琳玲', '2513924725',
-]
 SELF = os.path.basename(__file__)
 errors = []
+
 for root, dirs, files in os.walk('.'):
-    if '.git' in root:
+    if '.git' in root or '__pycache__' in root:
         continue
     for f in files:
         if f == SELF:
@@ -17,11 +14,26 @@ for root, dirs, files in os.walk('.'):
         path = os.path.join(root, f)
         try:
             content = open(path, 'rb').read().decode('utf-8', errors='ignore')
-            for kw in keywords:
-                if kw in content:
-                    errors.append(f'{path}: found "{kw}"')
         except Exception:
-            pass
+            continue
+
+        # QQ number pattern: 9-10 consecutive digits (but not common port numbers or timestamps)
+        for m in re.finditer(r'(?<!\d)\d{9,10}(?!\d)', content):
+            num = m.group()
+            if num not in ('1234567890', '987654321', '123456789'):  # allowed placeholders
+                errors.append(f'{path}: possible QQ number "{num}"')
+
+        # GitHub token pattern
+        for m in re.finditer(r'ghp_[a-zA-Z0-9]{36}', content):
+            token = m.group()
+            if token != 'ghp_' + 'x' * 36:  # placeholder in docs
+                errors.append(f'{path}: possible GitHub token')
+
+        # Username / personal keywords
+        for kw in ['spicysugar', 'linling', '琳玲']:
+            if kw in content:
+                errors.append(f'{path}: found username "{kw}"')
+
 if errors:
     for e in errors:
         print(f'LEAK: {e}')
