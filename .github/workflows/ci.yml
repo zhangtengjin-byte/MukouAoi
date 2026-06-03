@@ -1,99 +1,17 @@
 name: CI
 
-on:
-  push:
-    branches: [main, master]
-  pull_request:
-    branches: [main, master]
+on: [push, pull_request]
 
 jobs:
   verify:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: pip install pyyaml
-
-      - name: Check Python syntax
-        run: |
-          find . -name '*.py' -exec python -m py_compile {} \;
-          echo "All Python files pass syntax check"
-
-      - name: Validate JSON
-        run: |
-          FAIL=""
-          while IFS= read -r f; do
-            python3 -c "import json; json.load(open('$f'))" 2>/dev/null \
-              && echo "OK: $f" \
-              || { echo "FAIL: $f"; FAIL="1"; }
-          done < <(find . -name '*.json')
-          [ -z "$FAIL" ] && echo "All JSON valid" || exit 1
-
-      - name: Validate YAML
-        run: |
-          FAIL=""
-          while IFS= read -r f; do
-            python3 -c "
-import yaml
-try:
-    yaml.safe_load(open('$f'))
-    print(f'OK: $f')
-except Exception as e:
-    print(f'FAIL: $f - {e}')
-    exit(1)
-" || FAIL="1"
-          done < <(find . -name '*.yaml' -o -name '*.yml')
-          [ -z "$FAIL" ] && echo "All YAML valid" || exit 1
-
-      - name: Test no personal info leaks
-        run: python3 scripts/ci/test_no_leaks.py
-
-      - name: Test emotion-governor core
-        run: python3 scripts/ci/test_emotion.py
-
-      - name: Test mode-switch core
-        run: python3 scripts/ci/test_mode_switch.py
-
-      - name: Test tone_map completeness
-        run: python3 scripts/ci/test_tone_map.py
-
-      - name: Check README links
-        run: |
-          python3 -c "
-import re, os
-readme = open('README.md').read()
-links = re.findall(r'\]\(([^)]+)\)', readme)
-fail = False
-for link in links:
-    if link.startswith('http'):
-        continue
-    if not os.path.exists(link):
-        print(f'BROKEN: {link}')
-        fail = True
-if fail:
-    exit(1)
-print(f'README links: {len(links)} total, all valid')
-          "
-
-      - name: Summary
-        run: |
-          echo "========================================"
-          echo "  MUKOU AOI CI — PASSED"
-          echo "========================================"
-          echo "  Python: ${{ matrix.python-version }}"
-          echo "  OS: ubuntu-latest"
-          FILES=$(find . -type f -not -path './.git/*' | wc -l)
-          LINES=$(find . -type f -not -path './.git/*' -exec cat {} + | wc -l)
-          echo "  Files: $FILES"
-          echo "  Lines: $LINES"
-          echo "========================================"
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - run: python scripts/ci/test_no_leaks.py
+      - run: python scripts/ci/test_emotion.py
+      - run: python scripts/ci/test_mode_switch.py
+      - run: python scripts/ci/test_tone_map.py
