@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mukou Aoi Architecture Diagram</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: #020617;
+      min-height: 100vh;
+      padding: 2rem;
+      color: white;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    .header { margin-bottom: 2rem; }
+    .header-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+    .pulse-dot {
+      width: 12px; height: 12px;
+      background: #22d3ee; border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+    h1 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; }
+    .subtitle { color: #94a3b8; font-size: 0.8rem; margin-top: 0.25rem; }
+
+    .diagram-card {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
+      margin-bottom: 1.5rem;
+    }
+    svg { display: block; margin: 0 auto; width: 100%; max-width: 850px; height: auto; }
+
+    .info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .card {
+      background: #0f172a; border: 1px solid #1e293b; border-radius: 8px;
+      padding: 1rem;
+    }
+    .card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .card-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .card-dot.cyan { background: #22d3ee; }
+    .card-dot.emerald { background: #34d399; }
+    .card-dot.violet { background: #a78bfa; }
+    h3 { font-size: 0.75rem; font-weight: 600; color: #f1f5f9; }
+    .card ul { list-style: none; }
+    .card li { color: #94a3b8; font-size: 0.65rem; line-height: 1.6; padding-left: 0.5rem; }
+    .card li::before { content: "> "; color: #475569; }
+
+    .footer { text-align: center; color: #475569; font-size: 0.6rem; margin-top: 1.5rem; }
+
+    .comp-label { font-size: 11px; font-weight: 500; }
+    .comp-sublabel { font-size: 8px; fill: #94a3b8; }
+    .conn-label { font-size: 8px; fill: #64748b; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-row">
+      <div class="pulse-dot"></div>
+      <h1>Mukou Aoi &mdash; Architecture</h1>
+    </div>
+    <div class="subtitle">Hermes Agent Personality Engine &middot; Plugin &amp; Skill Architecture</div>
+  </div>
+
+  <div class="diagram-card">
+    <svg viewBox="0 0 800 620" xmlns="http://www.w3.org/2000/svg">
+      <!-- Grid -->
+      <defs>
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+        </pattern>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+        </marker>
+        <marker id="arrow-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#22d3ee"/>
+        </marker>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <rect width="800" height="620" fill="url(#grid)"/>
+
+      <!-- Arrows between layers -->
+      <!-- Input -> Gateway -->
+      <line x1="400" y1="62" x2="400" y2="98" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <text x="410" y="84" class="conn-label">User Input</text>
+
+      <!-- Gateway -> mode-switch -->
+      <line x1="400" y1="150" x2="400" y2="188" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- mode-switch -> emotion-governor -->
+      <line x1="400" y1="240" x2="400" y2="278" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- emotion-governor -> Agent Core -->
+      <line x1="400" y1="330" x2="400" y2="368" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Agent Core -> Skills -->
+      <line x1="400" y1="436" x2="400" y2="474" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Skills -> Output -->
+      <line x1="400" y1="526" x2="400" y2="562" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- === Layer 1: Input Channels === -->
+      <rect x="175" y="20" width="450" height="42" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+      <text x="400" y="45" class="comp-label" fill="#22d3ee" text-anchor="middle" dominant-baseline="middle">Input Channels</text>
+      <text x="400" y="57" class="comp-sublabel" text-anchor="middle">QQ Bot / NapCat Webhook / CLI / Webhook</text>
+
+      <!-- === Layer 2: Gateway === -->
+      <rect x="175" y="108" width="450" height="42" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="400" y="133" class="comp-label" fill="#34d399" text-anchor="middle" dominant-baseline="middle">Hermes Gateway</text>
+      <text x="400" y="145" class="comp-sublabel" text-anchor="middle">Session Management &middot; Message Routing</text>
+
+      <!-- === Layer 3: Mode Switch === -->
+      <rect x="175" y="198" width="450" height="42" rx="6" fill="rgba(251,146,60,0.25)" stroke="#fb923c" stroke-width="1.5"/>
+      <text x="400" y="223" class="comp-label" fill="#fb923c" text-anchor="middle" dominant-baseline="middle">mode-switch plugin</text>
+      <text x="400" y="235" class="comp-sublabel" text-anchor="middle">pre_gateway_dispatch &middot; @work / @life Routing</text>
+
+      <!-- === Layer 4: Emotion Governor === -->
+      <rect x="175" y="288" width="450" height="42" rx="6" fill="rgba(76,29,149,0.35)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="400" y="313" class="comp-label" fill="#a78bfa" text-anchor="middle" dominant-baseline="middle">emotion-governor plugin</text>
+      <text x="400" y="325" class="comp-sublabel" text-anchor="middle">pre_llm_call &middot; Emotion Detection &amp; Tone Injection</text>
+
+      <!-- === Layer 5: Agent Core === -->
+      <rect x="175" y="378" width="450" height="58" rx="6" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="400" y="405" class="comp-label" fill="#fbbf24" text-anchor="middle" dominant-baseline="middle">Hermes Agent Core</text>
+      <text x="400" y="418" class="comp-sublabel" text-anchor="middle">LLM Inference &middot; Tool Calling &middot; Context Fusion</text>
+      <text x="400" y="430" class="comp-sublabel" text-anchor="middle">(emotion context + memory context + session context)</text>
+
+      <!-- === Layer 6: Skills === -->
+      <rect x="175" y="484" width="450" height="42" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+      <text x="400" y="509" class="comp-label" fill="#94a3b8" text-anchor="middle" dominant-baseline="middle">Post-Processing Skills</text>
+      <text x="400" y="521" class="comp-sublabel" text-anchor="middle">emotion-governor inject &middot; memory-rag fetch &middot; reflection &middot; sticker match</text>
+
+      <!-- === Layer 7: Output === -->
+      <rect x="175" y="572" width="450" height="38" rx="6" fill="rgba(136,19,55,0.35)" stroke="#fb7185" stroke-width="1.5"/>
+      <text x="400" y="594" class="comp-label" fill="#fb7185" text-anchor="middle" dominant-baseline="middle">Response Delivery</text>
+      <text x="400" y="604" class="comp-sublabel" text-anchor="middle">QQ Bot / NapCat Group Chat / CLI Output</text>
+
+      <!-- Side annotations for data flow -->
+      <text x="120" y="130" fill="#475569" font-size="9" text-anchor="middle" transform="rotate(-90,120,130)">Inbound Data Flow</text>
+      <text x="680" y="593" fill="#475569" font-size="9" text-anchor="middle" transform="rotate(-90,680,593)">Outbound Data Flow</text>
+
+      <!-- Plugin boundaries -->
+      <rect x="155" y="193" width="40" height="145" rx="4" fill="none" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="175" y="270" fill="#475569" font-size="7" text-anchor="middle" transform="rotate(-90,175,270)">Plugin Layer</text>
+    </svg>
+  </div>
+
+  <div class="info-cards">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-dot cyan"></div>
+        <h3>Personality Engine</h3>
+      </div>
+      <ul>
+        <li>8-dimensional Plutchik emotion vector</li>
+        <li>16 compound emotions + keyword triggers</li>
+        <li>Natural fluctuation &amp; decay simulation</li>
+        <li>Configurable tone map (24 emotions x 5 intensity levels)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-dot emerald"></div>
+        <h3>Memory &amp; Reflection</h3>
+      </div>
+      <ul>
+        <li>ChromaDB + BGE vector retrieval</li>
+        <li>Automatic profile archiving &amp; detox</li>
+        <li>Individual &amp; recent reflection pipelines</li>
+        <li>Scoring engine + evidence verification</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-dot violet"></div>
+        <h3>Social &amp; Presence</h3>
+      </div>
+      <ul>
+        <li>QQ group chat bridge (NapCat + WebSocket)</li>
+        <li>Message scoring &amp; session management</li>
+        <li>Sticker system (93+ mood-matched GIFs)</li>
+        <li>SOUL.md / MEMORY.md persistent persona</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">Mukou Aoi &mdash; Built for Hermes Agent &middot; MIT License</div>
+</div>
+</body>
+</html>
