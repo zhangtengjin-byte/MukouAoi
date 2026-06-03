@@ -123,7 +123,7 @@ USER_PRONOUNS = ["User", "user"]
 ## Project Structure
 
 <p align="center">
-  <a href="assets/structure-v2.png" target="_blank"><img src="assets/structure-v2.png" alt="Mukou Aoi Project Structure" width="90%"/></a>
+  <a href="assets/structure-1780516769.png" target="_blank"><img src="assets/structure-1780516769.png" alt="Mukou Aoi Project Structure" width="90%"/></a>
 </p>
 
 ---
