@@ -195,6 +195,6 @@ MIT License — 可自由使用、修改、商用，保留原始版权声明即�
 ## 🙏 致谢
 
 - [Hermes Agent](https://github.com/NousResearch/hermes-agent) — 强大的 AI Agent 框架
-- [蛋蛋](https://github.com/zhangtengjin-byte) — 提供了很多思路上的帮助
+- [蛋蛋](https://github.com/GiriYomi) — 提供了很多思路上的帮助
 - [ChromaDB](https://www.trychroma.com/) — 向量数据库
 - [NapCat](https://napcat.napneko.icu/) — QQ 框架
