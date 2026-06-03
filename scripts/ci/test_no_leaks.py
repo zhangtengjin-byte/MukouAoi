@@ -2,7 +2,7 @@
 """CI test: no personal info leaks — uses pattern matching, not specific keywords"""
 import sys, os, re
 
-SELF = os.path.basename(__file__)
+SELF = os.path.basename(sys.argv[0]) if sys.argv[0] != '-c' else ''
 errors = []
 
 for root, dirs, files in os.walk('.'):
