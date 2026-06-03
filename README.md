@@ -9,7 +9,7 @@
 ## Architecture
 
 <p align="center">
-  <a href="assets/architecture-bw.png" target="_blank"><img src="assets/architecture-bw.png" alt="Mukou Aoi Architecture" width="90%"/></a>
+  <a href="assets/architecture-v2.png" target="_blank"><img src="assets/architecture-v2.png" alt="Mukou Aoi Architecture" width="90%"/></a>
 </p>
 
 架构说明见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
@@ -123,7 +123,7 @@ USER_PRONOUNS = ["User", "user"]
 ## Project Structure
 
 <p align="center">
-  <a href="assets/structure-bw.png" target="_blank"><img src="assets/structure-bw.png" alt="Mukou Aoi Project Structure" width="90%"/></a>
+  <a href="assets/structure-v2.png" target="_blank"><img src="assets/structure-v2.png" alt="Mukou Aoi Project Structure" width="90%"/></a>
 </p>
 
 ---
