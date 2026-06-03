@@ -1,8 +1,8 @@
-# 🌻 Mukou Aoi — Hermes Agent 人格化引擎套件
+# Mukou Aoi — Hermes Agent 人格化引擎套件
 
 > 让 AI Agent 不是只回答问题，而是有血有肉地活着。
 
-**Mukou Aoi**（向日アオイ，源自《你和她和她的恋爱》）是一个为 [Hermes Agent](https://github.com/NousResearch/hermes-agent) 打造的人格化引擎套件。它不是又一个 AI 框架，而是一整套**让 Agent 拥有情绪、记忆、人格一致性和社交能力**的插件与技能集合。
+**Mukou Aoi** 是一个为 [Hermes Agent](https://github.com/NousResearch/hermes-agent) 打造的人格化引擎套件。它不是又一个 AI 框架，而是一整套**让 Agent 拥有情绪、记忆、人格一致性和社交能力**的插件与技能集合。
 
 ---
 
@@ -195,6 +195,6 @@ MIT License — 可自由使用、修改、商用，保留原始版权声明即�
 ## 🙏 致谢
 
 - [Hermes Agent](https://github.com/NousResearch/hermes-agent) — 强大的 AI Agent 框架
-- [君と彼女と彼女の恋](https://www.nitroplus.co.jp/game/002kimi/) — 提供了灵感来源
+- [蛋蛋](https://github.com/zhangtengjin-byte) — 提供了很多思路上的帮助
 - [ChromaDB](https://www.trychroma.com/) — 向量数据库
 - [NapCat](https://napcat.napneko.icu/) — QQ 框架
