@@ -4,7 +4,7 @@ import sys
 sys.path.insert(0, 'plugins/emotion-governor')
 
 code = open('plugins/emotion-governor/__init__.py').read()
-ctx = {}
+ctx = {'__file__': 'plugins/emotion-governor/__init__.py'}
 exec(code.split('def register')[0], ctx)
 
 dims = ctx['DIMENSIONS']
