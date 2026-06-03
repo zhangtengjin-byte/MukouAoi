@@ -1,7 +1,8 @@
 <p align="center">
-  <a href="README.md" style="display:inline-block;padding:10px 28px;margin:0 6px;background:#0d0d0d;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:15px;border:1px solid #333">English</a>
-  <a href="README.zh.md" style="display:inline-block;padding:10px 28px;margin:0 6px;background:#fff;color:#0d0d0d;text-decoration:none;border-radius:6px;font-weight:600;font-size:15px;border:1px solid #ddd">中文</a>
-  <a href="https://qm.qq.com/q/721815130" target="_blank" style="display:inline-block;padding:10px 28px;margin:0 6px;background:#07C160;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:15px">Join QQ Group</a>
+  <a href="README.md" style="display:inline-block;padding:10px 26px;margin:4px;background:#1a1a1a;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;border:1px solid #444;box-shadow:0 2px 4px rgba(0,0,0,0.3)">English</a>
+  <a href="README.zh.md" style="display:inline-block;padding:10px 26px;margin:4px;background:#fff;color:#333;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;border:1px solid #ccc;box-shadow:0 1px 3px rgba(0,0,0,0.08)">中文</a>
+  <a href="https://qm.qq.com/q/721815130" target="_blank" style="display:inline-block;padding:10px 26px;margin:4px;background:#07C160;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;border:1px solid #06ad56;box-shadow:0 2px 4px rgba(7,193,96,0.3)">Join QQ Group</a>
+  <a href="mailto:ofgm@foxmail.com" style="display:inline-block;padding:10px 26px;margin:4px;background:#4A90D9;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;border:1px solid #3a7bc8;box-shadow:0 2px 4px rgba(74,144,217,0.3)">✉ ofgm@foxmail.com</a>
 </p>
 
 # Mukou Aoi — Hermes Agent Personality Engine Kit
