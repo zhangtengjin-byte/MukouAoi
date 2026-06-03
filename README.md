@@ -1,7 +1,7 @@
 <p align="center">
   <a href="README.md"><kbd style="display:inline-block;padding:8px 24px;margin:3px;background:#1a1a1a;color:#fff;border-radius:7px;font-weight:600;font-size:14px;border:1px solid #444;box-shadow:0 2px 4px rgba(0,0,0,0.3)">English</kbd></a>
   <a href="README.zh.md"><kbd style="display:inline-block;padding:8px 24px;margin:3px;background:#f6f8fa;color:#333;border-radius:7px;font-weight:600;font-size:14px;border:1px solid #d0d7de;box-shadow:0 1px 3px rgba(0,0,0,0.06)">中文</kbd></a>
-  <a href="https://qm.qq.com/q/721815130" target="_blank"><kbd style="display:inline-block;padding:8px 24px;margin:3px;background:#07C160;color:#fff;border-radius:7px;font-weight:600;font-size:14px;border:1px solid #06ad56;box-shadow:0 2px 4px rgba(7,193,96,0.3)">Join QQ Group</kbd></a>
+  <a href="https://qm.qq.com/q/aGtLMCMOHe" target="_blank"><kbd style="display:inline-block;padding:8px 24px;margin:3px;background:#07C160;color:#fff;border-radius:7px;font-weight:600;font-size:14px;border:1px solid #06ad56;box-shadow:0 2px 4px rgba(7,193,96,0.3)">Join QQ Group</kbd></a>
   <a href="mailto:ofgm@foxmail.com"><kbd style="display:inline-block;padding:8px 24px;margin:3px;background:#4A90D9;color:#fff;border-radius:7px;font-weight:600;font-size:14px;border:1px solid #3a7bc8;box-shadow:0 2px 4px rgba(74,144,217,0.3)">✉ ofgm@foxmail.com</kbd></a>
 </p>
 
