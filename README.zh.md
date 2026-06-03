@@ -1,14 +1,14 @@
 <p align="center">
-  <a href="README.md" style="display:inline-block;padding:10px 28px;margin:0 6px;background:#0d0d0d;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:15px;border:1px solid #333">English</a>
-  <a href="README.zh.md" style="display:inline-block;padding:10px 28px;margin:0 6px;background:#fff;color:#0d0d0d;text-decoration:none;border-radius:6px;font-weight:600;font-size:15px;border:1px solid #ddd">中文</a>
-  <a href="https://qm.qq.com/q/721815130" target="_blank" style="display:inline-block;padding:10px 28px;margin:0 6px;background:#07C160;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:15px">Join QQ Group</a>
+  <a href="README.md" style="display:inline-block;padding:10px 28px;margin:0 6px;background:#fff;color:#0d0d0d;text-decoration:none;border-radius:6px;font-weight:600;font-size:15px;border:1px solid #ddd">English</a>
+  <a href="README.zh.md" style="display:inline-block;padding:10px 28px;margin:0 6px;background:#0d0d0d;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:15px;border:1px solid #333">中文</a>
+  <a href="https://qm.qq.com/q/721815130" target="_blank" style="display:inline-block;padding:10px 28px;margin:0 6px;background:#07C160;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:15px">加入 QQ 群</a>
 </p>
 
-# Mukou Aoi — Hermes Agent Personality Engine Kit
+# Mukou Aoi — Hermes Agent 人格化引擎套件
 
-Give your AI Agent a soul — not just answers, but presence.
+让 AI Agent 不只是回答问题，而是有血有肉地活着。
 
-**Mukou Aoi** is a personality engine kit built for [Hermes Agent](https://github.com/NousResearch/hermes-agent). It's not another AI framework — it's a collection of plugins and skills that give your agent emotions, memory, consistent personality, and social capabilities.
+**Mukou Aoi** 是一个为 [Hermes Agent](https://github.com/NousResearch/hermes-agent) 打造的人格化引擎套件。它不是又一个 AI 框架，而是一整套让 Agent 拥有情绪、记忆、人格一致性和社交能力的插件与技能集合。
 
 ---
 
@@ -18,7 +18,7 @@ Give your AI Agent a soul — not just answers, but presence.
   <a href="assets/architecture-v2.png" target="_blank"><img src="assets/architecture-v2.png" alt="Mukou Aoi Architecture" width="90%"/></a>
 </p>
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
+架构说明见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
 ---
 
@@ -92,7 +92,7 @@ Full configuration example at [examples/config.example.yaml](examples/config.exa
 | [MEMORY_RAG.md](docs/MEMORY_RAG.md) | Memory RAG system: ChromaDB, vector retrieval, automatic archiving |
 | [REFLECTION.md](docs/REFLECTION.md) | Reflection system: profile updates, scoring engine, verification pipeline |
 | [NAPCAT_BRIDGE.md](docs/NAPCAT_BRIDGE.md) | QQ group chat bridge: NapCat deployment, dual-channel messaging, message filtering, session management |
-| [CRON_MAINTENANCE.md](docs/CRON_MAINTENANCE.md) | Cron jobs: emotion fluctuation, reflection, profile update, memory detox (required); NapCat monitoring, morning news, daily summary (optional) |
+| [CRON_MAINTENANCE.md](docs/CRON_MAINTENANCE.md) | Cron jobs：情绪波动、反思、画像更新、记忆去毒（必需）；NapCat 监控、早报、总结（选装） |
 
 ---
 
