@@ -6,11 +6,14 @@ keywords = [
     'spicysugar', '神大人', 'SnowLuma', 'TSaZ~tsGpZEJFUvg',
     '3841303389', '2108929103', 'linling', '琳玲', '2513924725',
 ]
+SELF = os.path.basename(__file__)
 errors = []
 for root, dirs, files in os.walk('.'):
     if '.git' in root:
         continue
     for f in files:
+        if f == SELF:
+            continue
         path = os.path.join(root, f)
         try:
             content = open(path, 'rb').read().decode('utf-8', errors='ignore')
