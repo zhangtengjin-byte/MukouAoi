@@ -2,567 +2,329 @@
 
 ## 1. 概述
 
-Mukou Aoi 通过 Hermes Agent 的 cron 系统执行三种定时维护任务。本文档涵盖配置与启用/停用方法。
+Mukou Aoi 通过 Hermes Agent 的 cron 系统执行九种定时维护任务。本文档涵盖全部任务的定义、配置方法与启用/停用说明。
 
 **任务一览：**
 
-| 任务 | 类型 | 默认状态 | 建议时间 | 说明 |
-|------|------|----------|----------|------|
-| 画像定时去毒（Profile Memory Detox） | **REQUIRED** | 启用 | 每天 23:00 | 清理用户画像中的过时信息 |
-| 每日早报（Morning News Broadcast） | OPTIONAL | 禁用 | 每天 08:00 | 搜索并推送当日新闻摘要 |
-| 每日总结（Daily Summary） | OPTIONAL | 禁用 | 每天 23:30 | 回顾当日对话并生成总结报告 |
+| 任务 | 类型 | 默认状态 | 调度 | 说明 |
+|------|------|----------|------|------|
+| 情绪自然波动 | **REQUIRED** | 启用 | 每 30 分钟 | 对八维情绪向量进行均值回归随机游走 |
+| 反思系统 | **REQUIRED** | 启用 | 每 15 分钟 | 随机选择近期/个体反思，打分、查重、印证 |
+| 个体画像更新 | **REQUIRED** | 启用 | 每 60 分钟 | 扫描最近1小时消息，创建/更新个体库，执行遗忘 |
+| 每日用户画像更新 | **REQUIRED** | 启用 | 每天 23:00 | 通读用户画像，删除过时条目，添加新信息 |
+| 每日记忆去毒 | **REQUIRED** | 启用 | 每天 01:00 | ChromaDB 系统性清洗：去重、虚构检测、过期清理 |
+| NapCat 存活监控 | **REQUIRED** | 启用 | 每 5 分钟 | 检测 NapCat 服务与登录状态，掉线时告警 |
+| 每日早报 | OPTIONAL | 启用 | 每天 07:05 | 搜索当日新闻，以葵口吻播报 |
+| 每日总结 | OPTIONAL | 启用 | 每天 23:30 | 回顾当日对话并生成格式化日报 |
+| VPN 续费提醒 | OPTIONAL | 启用 | 每月 29 号 09:00 | 提醒续费 VPN |
 
-> **提示：** 所有定时任务均通过 `hermes cron` CLI 管理。Hermes 的 cron 行为取决于 Hermes Agent 版本，请查阅 Hermes 官方文档确认具体语法。
+> **提示：** 所有定时任务均通过 `hermes cron` CLI 管理。
 
 ---
 
-## 2. 画像定时去毒（Profile Memory Detox）
+## 2. 情绪自然波动（Emotion Fluctuation）
 
-**状态：** ✅ REQUIRED（必须启用）
+**状态：** REQUIRED（必须启用）
+**调度：** 每 30 分钟
+**模式：** no-agent 脚本
 
-画像去毒是葵维护用户画像准确性的核心机制。它定期读取 ChromaDB 中的用户画像，比对近期对话记录，识别并移除已过时或矛盾的信息，然后将更新后的画像写回数据库并记录变更日志。
+对葵的八维 Plutchik 情绪向量进行概率性均值回归随机游走。每 30 分钟执行一次 `fluctuate()`，将偏离中心值（50）的维度逐步拉回，同时在边缘值附近添加随机噪声。
 
-### 2.1 工作流程
+### 2.1 脚本位置
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  Profile Memory Detox                                        │
-│                                                              │
-│  步骤 1 ── 读取画像                                           │
-│    ChromaDB.individuals.get(target_user_id) → profile        │
-│    ↓                                                         │
-│  步骤 2 ── 提取待验证事实                                      │
-│    profile.facts[] → 逐个提取 (key:value) 对                  │
-│    ↓                                                         │
-│  步骤 3 ── 搜索近期会话进行验证                                 │
-│    session_search(target_user, time_window=7d)               │
-│    → 检查每条事实是否有矛盾 / 已被新信息取代                    │
-│    ↓                                                         │
-│  步骤 4 ── 过滤 & 标记                                          │
-│    stale_facts[] ← 识别出的过期/矛盾事实                       │
-│    kept_facts[] ← 仍有效的事实                                 │
-│    ↓                                                         │
-│  步骤 5 ── 更新画像并写回                                       │
-│    profile.facts = kept_facts                                 │
-│    ChromaDB.individuals.update(profile)                      │
-│    ↓                                                         │
-│  步骤 6 ── 记录变更日志                                        │
-│    detox_log.jsonl ← {timestamp, user, removed, reason}      │
-└─────────────────────────────────────────────────────────────┘
+~/.hermes/scripts/emotion-fluctuate-v2.py
 ```
 
-### 2.2 创建定时任务
+### 2.2 算法概要
+
+```
+fluctuate(val):
+  1. 计算偏离中心(50)的距离 d
+  2. 归一化 normalized = min(1.0, d / 50.0)
+  3. 回归概率 p = 0.5 + 0.42 * normalized^0.9
+  4. 边缘增强：接近极值时回归概率提升到 0.82+
+  5. 步长 magnitude = gauss(1.2 + 4.8 * (1-normalized)^1.15, 0.9)
+  6. 向外阻尼：远离中心时 step *= 0.35 / 0.15
+  7. 写入 emotion.json + 追加 history jsonl
+```
+
+### 2.3 创建任务
 
 ```bash
-# 创建画像去毒定时任务 — 每天 23:00 执行
 hermes cron create \
-  --name profile-detox \
-  --schedule "0 23 * * *" \
-  --command "python3 ~/MukouAoi/scripts/detox_profiles.py" \
-  --description "每日画像去毒：清理用户画像中的过时/矛盾信息"
+  --name emotion-fluctuate \
+  --schedule "*/30 * * * *" \
+  --script ~/.hermes/scripts/emotion-fluctuate-v2.py \
+  --no-agent
 ```
 
-验证创建是否成功：
+### 2.4 数据文件
+
+- `~/.hermes/emotion.json` — 当前情绪状态
+- `~/.hermes/emotion-history.jsonl` — 历史波动记录
+
+---
+
+## 3. 反思系统（Reflection Engine）
+
+**状态：** REQUIRED（必须启用）
+**调度：** 每 15 分钟
+**模式：** LLM 驱动，静默执行（回复 `[SILENT]`）
+
+随机选择近期反思（Recent Reflection）或个体反思（Individual Reflection），进行推演、打分、查重，若结果需印证则自动通过聊天通路发送。
+
+### 3.1 执行入口
+
+```
+~/.hermes/scripts/run_reflection.py
+```
+
+### 3.2 创建任务
 
 ```bash
-# 列出所有 cron 任务
-hermes cron list
-
-# 查看特定任务详情
-hermes cron show profile-detox
+hermes cron create \
+  --name reflection-engine \
+  --schedule "every 15m" \
+  --command "python3 ~/.hermes/scripts/run_reflection.py"
 ```
 
-### 2.3 任务脚本参考（`detox_profiles.py`）
+### 3.3 配置参数
 
-```python
-#!/usr/bin/env python3
-"""
-画像去毒脚本 — 每日定时执行
-读取所有用户画像 → 验证事实有效期 → 移除过时条目 → 写回
-"""
-import json
-import logging
-from datetime import datetime, timedelta
+参见 `docs/REFLECTION.md` 第 10 节：
 
-# 伪代码示意，具体实现请参考实际源码
-def run_detox():
-    # 1. 从 ChromaDB 读取所有个体画像
-    profiles = chromadb.individuals.get_all()
+- `INDIVIDUAL_COOLDOWN_HOURS = 4` — 个体验证后冷却时间
+- `MAX_HISTORY_AGE_HOURS = 24` — 历史淘汰时限
+- `SCORE_THRESHOLD = 75` — 评分阈值
+- `SCORING_MODEL = "claude-sonnet-4-20250514"` — 可用 `deepseek-chat`
 
-    for user_id, profile in profiles.items():
-        original_count = len(profile.get("facts", []))
-        stale_facts = []
+---
 
-        for fact in profile["facts"]:
-            # 2. 搜索最近 7 天会话验证该事实
-            sessions = session_search(
-                user_id=user_id,
-                time_window=timedelta(days=7)
-            )
+## 4. 个体画像更新（Individual Profile Update）
 
-            # 3. 判断是否有矛盾证据或已过时
-            if is_contradicted(fact, sessions) or is_outdated(fact):
-                stale_facts.append(fact)
+**状态：** REQUIRED（必须启用）
+**调度：** 每 60 分钟
+**模式：** LLM 驱动，静默执行（回复 `[SILENT]`）
 
-        # 4. 移除过时事实
-        profile["facts"] = [
-            f for f in profile["facts"] if f not in stale_facts
-        ]
+扫描最近 1 小时的群聊/私聊消息，创建新个体或更新已有个体库，执行遗忘（Forgetting）算法。
 
-        # 5. 写回数据库
-        chromadb.individuals.update(user_id, profile)
-
-        # 6. 记录日志
-        if stale_facts:
-            log_entry = {
-                "timestamp": datetime.now().isoformat(),
-                "user_id": user_id,
-                "removed_count": len(stale_facts),
-                "original_count": original_count,
-                "new_count": len(profile["facts"]),
-                "removed_facts": stale_facts,
-                "reason": "contradicted_or_outdated",
-            }
-            append_log("detox_log.jsonl", log_entry)
-
-if __name__ == "__main__":
-    run_detox()
-```
-
-### 2.4 查看去毒日志
+### 4.1 创建任务
 
 ```bash
-# 查看最近去毒记录
-tail -n 20 ~/MukouAoi/data/detox_log.jsonl
-
-# 统计某用户累计移除了多少条事实
-grep '"user_id":"user_xxx"' ~/MukouAoi/data/detox_log.jsonl \
-  | python3 -c "import sys,json; data=[json.loads(l) for l in sys.stdin]; print(sum(d['removed_count'] for d in data))"
+hermes cron create \
+  --name individual-profile-update \
+  --schedule "every 60m" \
+  --prompt-file ~/.hermes/prompts/update_profiles.txt
 ```
 
-### 2.5 临时停用 / 恢复
+### 4.2 工作流程
 
-```bash
-# 暂停去毒任务（不删除配置）
-hermes cron pause profile-detox
-
-# 恢复任务
-hermes cron resume profile-detox
-
-# 完全删除任务（谨慎操作）
-hermes cron delete profile-detox
+```
+1. 扫描最近 60 分钟的消息
+2. 提取新出现的 QQ 号和昵称
+3. 创建/更新 ChromaDB 个体库（individuals collection）
+4. 运行遗忘算法：删除超时 / 低效条目
+5. 静默退出（回复 [SILENT]）
 ```
 
 ---
 
-## 3. 每日早报（Morning News Broadcast）
+## 5. 每日用户画像更新（Daily User Profile Update）
 
-**状态：** ⚠️ OPTIONAL（可选，默认禁用）
+**状态：** REQUIRED（必须启用）
+**调度：** 每天 23:00
+**模式：** LLM 驱动
 
-每日早报是一个可选功能，在每天早上定时搜索新闻、整理头条、生成简报，然后推送到 QQ 群聊或保存为本地 Markdown 文件。
+读取 `memory user` 中的全部条目，对照近期会话记录（session_search 3 天），删除过时条目，添加新出现的重要信息。以近期对话为准，纠正与事实不符的画像。
 
-### 3.1 前置依赖
-
-- SearXNG 实例（或其它可用的 Web Search API）
-- QQ 群聊机器人（通过 NapCat Bridge）— **仅推送模式需要**
-
-### 3.2 工作流程
-
-```
-┌─────────────────────────────────────────────────────────┐
-│  Morning News Broadcast                                  │
-│                                                          │
-│  搜索新闻 ─── SearXNG / 搜索引擎                            │
-│    ↓                                                     │
-│  汇总精选 ─── 取 TOP 5~8 条，去重、排序                     │
-│    ↓                                                     │
-│  LLM 润色 ─── 生成自然语言简报（带摘要 + 来源链接）          │
-│    ↓                                                     │
-│  输出 ───→ QQ 群推送 | 本地 Markdown 文件                  │
-└─────────────────────────────────────────────────────────┘
-```
-
-### 3.3 创建定时任务
+### 5.1 创建任务
 
 ```bash
-# === 方案 A：推送到 QQ ===
 hermes cron create \
-  --name morning-news \
-  --schedule "0 8 * * *" \
-  --command "python3 ~/MukouAoi/scripts/morning_news.py --output qq" \
-  --description "每日早报：搜索最新新闻并推送到 QQ 群"
-
-# === 方案 B：保存为本地文件 ===
-hermes cron create \
-  --name morning-news \
-  --schedule "0 8 * * *" \
-  --command "python3 ~/MukouAoi/scripts/morning_news.py --output markdown --dir ~/daily_news" \
-  --description "每日早报：搜索最新新闻并保存为 Markdown"
+  --name daily-profile-update \
+  --schedule "0 23 * * *"
 ```
 
-### 3.4 任务脚本参考（`morning_news.py`）
+### 5.2 执行步骤
 
-```python
-#!/usr/bin/env python3
-"""晨间新闻简报 — 搜索、整理、推送"""
-import argparse
-import json
-
-
-def fetch_news():
-    """通过 SearXNG 或配置的搜索引擎获取新闻"""
-    # 调用 SearXNG API 或 Hermes 内置 web_search 技能
-    results = web_search(query="今日要闻 热点新闻", top_k=8)
-    return results
-
-
-def curate_news(raw_news):
-    """调用 LLM 汇总润色"""
-    prompt = f"""从以下新闻中精选 TOP 5 条最重要的，生成中文简报。
-每条包含：标题、一句话摘要、来源。
-格式：Markdown 列表。"""
-    # 调用 LLM 生成
-    return llm_generate(prompt, context=raw_news)
-
-
-def push_to_qq(briefing):
-    """通过 NapCat Bridge 发送到 QQ 群"""
-    # napcat_bridge.send_group_msg(group_id=..., message=briefing)
-    pass
-
-
-def save_markdown(briefing, output_dir):
-    """保存为本地 Markdown 文件"""
-    from datetime import date
-    path = Path(output_dir) / f"晨间简报_{date.today().isoformat()}.md"
-    path.write_text(briefing, encoding="utf-8")
-    print(f"已保存: {path}")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--output", choices=["qq", "markdown"], default="markdown")
-    parser.add_argument("--dir", default="~/daily_news")
-    args = parser.parse_args()
-
-    raw = fetch_news()
-    briefing = curate_news(raw)
-
-    if args.output == "qq":
-        push_to_qq(briefing)
-    else:
-        save_markdown(briefing, args.dir)
+```
+Step 1 — 读取当前 user memory（memory tool，target=user）
+Step 2 — session_search 搜索最近 3 天（关键词含偏好/决定/健康/配置等）
+Step 3 — 交叉比对：逐条验证画像内容的时间有效性
+Step 4 — 添加新出现的偏好、决定、配置变更
+Step 5 — memory replace 更新过时条目
 ```
 
-### 3.5 启用与停用
+---
+
+## 6. 每日记忆去毒（Daily Memory Detox）
+
+**状态：** REQUIRED（必须启用）
+**调度：** 每天 01:00
+**模式：** LLM 驱动，加载 `memory-rag-system` skill
+
+对 ChromaDB 记忆数据库（collection: hermes_memory）进行系统性清洗。
+
+### 6.1 创建任务
 
 ```bash
-# 启用（创建后默认启用）
-hermes cron resume morning-news
-
-# 停用
-hermes cron pause morning-news
-
-# 手动触发一次测试
-hermes cron run morning-news
-
-# 查看下次执行时间
-hermes cron show morning-news
+hermes cron create \
+  --name daily-memory-detox \
+  --schedule "0 1 * * *" \
+  --skill memory-rag-system
 ```
 
-### 3.6 配置示例（YAML）
+### 6.2 工作流程
 
-如需持久化配置，可在 Hermes 配置目录下创建 `cron_news_config.yaml`：
+```
+Phase 0 — 虚构内容检测（最先执行）
+  关键词扫描以下模式并删除：
+    - "星轨协议" / "star_trail" 等专有名词
+    - "核心频率2.4GHz" / "缓存队列深度128" 等技术伪条目
+    - 任何无法从公开信息核实的专有协议名
+
+Phase 1 — 去重
+  按内容哈希分组，保留最早版本，删除重复
+
+Phase 2 — 过期内容清理
+  删除超过 30 天未更新的临时记录
+
+Phase 3 — 矛盾检测
+  同一主题下互斥的记录，保留最新，删除旧版
+```
+
+---
+
+## 7. NapCat 存活监控（NapCat Watchdog）
+
+**状态：** REQUIRED（必须启用）
+**调度：** 每 5 分钟
+**模式：** no-agent 脚本
+
+检测 NapCat 服务的 systemd 状态和 QQ 登录状态。在线时静默不输出，掉线时推送告警消息并生成二维码。
+
+### 7.1 脚本位置
+
+```
+~/.hermes/scripts/napcat_watchdog.py
+```
+
+### 7.2 检测逻辑
+
+```
+Step 1 — systemctl is-active napcat
+  非 active → 输出告警 → 退出
+
+Step 2 — curl 登录 NapCat API 检测凭证有效性
+  若未登录 → 请求二维码 → qrencode 生成 PNG → 输出 MEDIA 路径告警
+  若已登录 → 静默退出（无输出）
+```
+
+### 7.3 创建任务
+
+```bash
+hermes cron create \
+  --name napcat-watchdog \
+  --schedule "every 5m" \
+  --script ~/.hermes/scripts/napcat_watchdog.py \
+  --no-agent
+```
+
+### 7.4 依赖
+
+- `systemctl` — NapCat 作为 systemd 服务运行
+- `napcat_webui` — NapCat HTTP API（端口 6099）
+- `qrencode` — 二维码生成工具
+
+---
+
+## 8. 每日早间新闻（Morning News Broadcast）
+
+**状态：** OPTIONAL
+**调度：** 每天 07:05
+**模式：** LLM 驱动
+
+搜索当日四个板块的新闻（国内、国际、科技、ACG），以葵的口吻生成播报稿并推送到 QQ。
+
+### 8.1 创建任务
+
+```bash
+hermes cron create \
+  --name morning-news \
+  --schedule "05 7 * * *"
+```
+
+### 8.2 新闻来源
+
+| 板块 | 搜索词 |
+|------|--------|
+| 国内新闻 | "中国新闻 今天 热点" |
+| 国际新闻 | "国际新闻 今天 热点" |
+| 科技新闻 | "科技新闻 今天" |
+| ACG 新闻 | "动漫新闻 ACG 今天" |
+
+---
+
+## 9. 每日总结（Daily Summary）
+
+**状态：** OPTIONAL
+**调度：** 每天 23:30
+**模式：** LLM 驱动
+
+回顾当日对话，结合 MEMORY.md 持久记忆，以葵的口吻撰写格式化日报。内容包括今日事项、情绪变化、技术工作和明日计划。
+
+### 9.1 创建任务
+
+```bash
+hermes cron create \
+  --name daily-summary \
+  --schedule "30 23 * * *"
+```
+
+---
+
+## 10. VPN 续费提醒（VPN Renewal Reminder）
+
+**状态：** OPTIONAL
+**调度：** 每月 29 号 09:00
+**模式：** LLM 驱动
+
+每月固定提醒。以葵的语气活泼地提醒神大人续费 VPN。
+
+### 10.1 创建任务
+
+```bash
+hermes cron create \
+  --name vpn-renewal-reminder \
+  --schedule "0 9 29 * *"
+```
+
+---
+
+## A. 全部任务汇总表
 
 ```yaml
-# ~/.hermes/config/cron_news_config.yaml
-morning_news:
-  enabled: false               # 设为 true 启用
-  schedule: "0 8 * * *"        # 每天早上 8:00
-  output_mode: "markdown"      # qq | markdown
-  output_dir: "~/daily_news"
-  search_engine: "searxng"     # searxng | google | bing
-  searxng_url: "http://localhost:8888"
-  top_k: 8
-  language: "zh-CN"
-  qq_group_id: "123456789"     # 仅推送模式需要
+# 一次性创建全部推荐 cron 任务
+# 部分任务需要对应的脚本/prompt文件已存在
+
+hermes cron create --name emotion-fluctuate --schedule "*/30 * * * *" --script ~/.hermes/scripts/emotion-fluctuate-v2.py --no-agent
+hermes cron create --name reflection-engine --schedule "every 15m"   # LLM驱动，会话内 inline prompt
+hermes cron create --name individual-profile-update --schedule "every 60m"  # LLM驱动
+hermes cron create --name daily-profile-update --schedule "0 23 * * *"      # LLM驱动
+hermes cron create --name daily-memory-detox --schedule "0 1 * * *" --skill memory-rag-system  # LLM驱动
+hermes cron create --name napcat-watchdog --schedule "every 5m" --script ~/.hermes/scripts/napcat_watchdog.py --no-agent
+hermes cron create --name morning-news --schedule "05 7 * * *"     # OPTIONAL
+hermes cron create --name daily-summary --schedule "30 23 * * *"   # OPTIONAL
+hermes cron create --name vpn-renewal-reminder --schedule "0 9 29 * *"  # OPTIONAL
 ```
 
----
-
-## 4. 每日总结（Daily Summary）
-
-**状态：** ⚠️ OPTIONAL（可选，默认禁用）
-
-每日总结在深夜回顾当天所有对话，提取关键话题、重要共识和待办事项，生成总结报告。可保存为 Markdown 文件或推送到 QQ。
-
-### 4.1 工作流程
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Daily Summary                                               │
-│                                                              │
-│  步骤 1 ── 收集当天对话                                       │
-│    → 从 ChromaDB / 会话存档中筛选当日 (00:00~23:59) 记录      │
-│    ↓                                                         │
-│  步骤 2 ── 按话题聚类                                          │
-│    → 主题提取 → 同话题合并 → 排除无意义闲聊                   │
-│    ↓                                                         │
-│  步骤 3 ── LLM 生成总结                                        │
-│    → 每条话题生成：参与人 + 关键结论 + 待办项                  │
-│    ↓                                                         │
-│  步骤 4 ── 输出                                               │
-│    → QQ 群推送 | 保存为 Markdown                              │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### 4.2 创建定时任务
-
-```bash
-# === 方案 A：推送到 QQ ===
-hermes cron create \
-  --name daily-summary \
-  --schedule "30 23 * * *" \
-  --command "python3 ~/MukouAoi/scripts/daily_summary.py --output qq" \
-  --description "每日总结：回顾当天对话内容并推送至 QQ"
-
-# === 方案 B：保存为本地文件 ===
-hermes cron create \
-  --name daily-summary \
-  --schedule "30 23 * * *" \
-  --command "python3 ~/MukouAoi/scripts/daily_summary.py --output markdown --dir ~/daily_summaries" \
-  --description "每日总结：回顾当天对话内容并保存为 Markdown"
-```
-
-### 4.3 任务脚本参考（`daily_summary.py`）
-
-```python
-#!/usr/bin/env python3
-"""每日对话总结 — 收集、聚类、总结"""
-import argparse
-from datetime import datetime, date
-from pathlib import Path
-
-
-def collect_today_sessions():
-    """从 ChromaDB / 会话存档中获取当天的对话记录"""
-    today_start = datetime.now().replace(hour=0, minute=0, second=0)
-    today_end = datetime.now().replace(hour=23, minute=59, second=59)
-
-    # 搜索 ChromaDB memory collection
-    sessions = chromadb.memory.search(
-        time_range=(today_start, today_end),
-        top_k=200,
-    )
-    return sessions
-
-
-def cluster_by_topic(sessions):
-    """按话题聚类，识别关键讨论主题"""
-    # 提取主题关键词 → 合并 → 排序（按对话量/参与人数）
-    pass
-
-
-def generate_summary(clusters):
-    """调用 LLM 生成结构化总结"""
-    prompt = """今天是 {today}。以下是今天的对话主题聚类，请生成一份中文总结。
-
-格式要求：
-- 每个主题一段
-- 包含：参与人、关键结论、待办事项（如有）
-- 整体语气简洁自然"""
-    return llm_generate(prompt, context=clusters)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--output", choices=["qq", "markdown"], default="markdown")
-    parser.add_argument("--dir", default="~/daily_summaries")
-    args = parser.parse_args()
-
-    sessions = collect_today_sessions()
-    clusters = cluster_by_topic(sessions)
-    summary = generate_summary(clusters)
-
-    if args.output == "qq":
-        push_to_qq(summary)
-    else:
-        save_markdown(summary, args.dir)
-```
-
-### 4.4 启用与停用
-
-```bash
-# 启用
-hermes cron resume daily-summary
-
-# 停用
-hermes cron pause daily-summary
-
-# 手动触发
-hermes cron run daily-summary
-
-# 查看状态
-hermes cron show daily-summary
-```
-
-### 4.5 配置示例（YAML）
-
-```yaml
-# ~/.hermes/config/cron_summary_config.yaml
-daily_summary:
-  enabled: false               # 设为 true 启用
-  schedule: "30 23 * * *"      # 每晚 23:30
-  output_mode: "markdown"      # qq | markdown
-  output_dir: "~/daily_summaries"
-  timezone: "Asia/Shanghai"
-  max_topics: 10               # 最多总结的话题数
-  min_topic_length: 3          # 最少对话轮数才视为独立话题
-  qq_group_id: "123456789"     # 仅推送模式需要
-```
-
----
-
-## 5. 综合管理
-
-### 5.1 任务一览
-
-```bash
-# 列出所有 cron 任务
-hermes cron list
-
-# 输出示例：
-# profile-detox   │ 0 23 * * *   │ 每天 23:00  │ 画像定时去毒      │ ACTIVE
-# morning-news    │ 0 8 * * *    │ 每天 08:00  │ 每日早报（可选）  │ PAUSED
-# daily-summary   │ 30 23 * * *  │ 每天 23:30  │ 每日总结（可选）  │ PAUSED
-```
-
-### 5.2 批量管理
-
-```bash
-# 一键停用所有可选任务（保留画像去毒）
-hermes cron pause morning-news
-hermes cron pause daily-summary
-
-# 一键启用所有可选任务
-hermes cron resume morning-news
-hermes cron resume daily-summary
-
-# 查看任务执行日志
-tail -f ~/.hermes/logs/cron.log
-```
-
-### 5.3 时间与排期
-
-建议所有定时任务使用东八区（Asia/Shanghai）：
-
-```bash
-# 可通过 Hermes 配置文件设置时区
-# ~/.hermes/config/hermes.yaml
-# timezone: "Asia/Shanghai"
-
-# 查看当前 Hermes 时区
-hermes config get timezone
-```
-
-| 任务 | Cron 表达式 | 说明 | 与其它任务间隔 |
-|------|-------------|------|---------------|
-| 画像去毒 | `0 23 * * *` | 23:00 | — |
-| 每日早报 | `0 8 * * *` | 08:00 | 与总结相隔 > 15h |
-| 每日总结 | `30 23 * * *` | 23:30 | 去毒完成 30 min 后 |
-
----
-
-## 6. 故障排查
-
-### 6.1 常见问题
-
-| 问题 | 可能原因 | 解决 |
-|------|----------|------|
-| cron 任务未执行 | Hermes 未运行 | 检查 `hermes status`，确保 agent 在线 |
-| 画像去毒报错 | ChromaDB 连接失败 | 检查 ~/.hermes/chroma_db 权限与磁盘空间 |
-| 早报无新闻 | SearXNG 未配置 / 不可用 | 检查搜素引擎配置，`curl http://localhost:8888` 测试 |
-| 总结为空 | 当天无有效对话 | 这是正常行为，日志中会记录 `no_sessions_today` |
-
-### 6.2 查看日志
-
-```bash
-# 查看所有 cron 执行日志
-tail -n 50 ~/.hermes/logs/cron.log
-
-# 按任务名过滤
-grep 'profile-detox' ~/.hermes/logs/cron.log
-
-# 按日期过滤
-grep '2026-06-04' ~/.hermes/logs/cron.log
-```
-
-### 6.3 手动调试
-
-```bash
-# 模拟画像去毒执行（不写库，仅输出差异预览）
-python3 ~/MukouAoi/scripts/detox_profiles.py --dry-run
-
-# 手动生成早报（不推送，仅输出到终端）
-python3 ~/MukouAoi/scripts/morning_news.py --dry-run
-
-# 手动生成总结（不推送，仅输出到终端）
-python3 ~/MukouAoi/scripts/daily_summary.py --dry-run
-```
-
----
-
-## 7. 与葵其它系统的关系
-
-```
-          ┌──────────────────┐
-          │   Emotion System  │  ← 定时任务执行结果会影响情绪状态
-          └────────┬─────────┘
-                   │
-┌──────────────────┼──────────────────┐
-│  Cron Tasks       │                   │
-│  ┌──────────────┐│                   │
-│  │ Profile      │├── 读写 ──→ ChromaDB (Individuals)
-│  │ Detox        ││                   │
-│  ├──────────────┤│                   │
-│  │ Morning News │├── 推送 ──→ NapCat Bridge → QQ 群
-│  ├──────────────┤│                   │
-│  │ Daily        │├── 读取 ──→ ChromaDB (Memory)
-│  │ Summary      │├── 推送 ──→ NapCat Bridge → QQ 群
-│  └──────────────┘│                   │
-└──────────────────┴──────────────────┘
-                   │
-          ┌────────▼─────────┐
-          │   Reflection     │  ← 每日总结的素材也可能进入反思系统
-          └──────────────────┘
-```
-
----
-
-## 附录 A：快速参考 — 完整配置命令一览
-
-```bash
-#!/bin/bash
-# 一键部署所有 cron 任务（按需选择）
-
-# === REQUIRED：画像去毒 ===
-hermes cron create \
-  --name profile-detox \
-  --schedule "0 23 * * *" \
-  --command "python3 ~/MukouAoi/scripts/detox_profiles.py" \
-  --description "每日画像去毒"
-
-# === OPTIONAL：每日早报（推送到 QQ） ===
-hermes cron create \
-  --name morning-news \
-  --schedule "0 8 * * *" \
-  --command "python3 ~/MukouAoi/scripts/morning_news.py --output qq" \
-  --description "每日早报"
-
-# === OPTIONAL：每日总结（推送到 QQ） ===
-hermes cron create \
-  --name daily-summary \
-  --schedule "30 23 * * *" \
-  --command "python3 ~/MukouAoi/scripts/daily_summary.py --output qq" \
-  --description "每日总结"
-```
+## B. 故障排查
+
+| 现象 | 可能原因 | 解决方法 |
+|------|----------|----------|
+| 情绪不波动 | cron 任务未创建或脚本找不到 | `hermes cron list` 检查任务状态 |
+| 反思不输出 | 冷却期内 / cron 未运行 | 检查 `INDIVIDUAL_COOLDOWN_HOURS` 配置 |
+| NapCat 频繁告警 | 登录过期 / 端口变更 | 检查 napcat_watchdog.py 内的 PORT 和 TOKEN |
+| 画像不更新 | cron 超时 / 数据库连接失败 | 检查 `~/.hermes/config.yaml` 中 ChromaDB 配置 |
+| 记忆去毒误删 | 虚构检测关键词过宽 | 检查脚本内关键词白名单 |
+| 每日早报不推送 | 搜索超时 / 无新闻源响应 | 检查网络代理和搜素引擎配置 |
