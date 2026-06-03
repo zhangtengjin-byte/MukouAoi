@@ -84,7 +84,7 @@ Full configuration example at [examples/config.example.yaml](examples/config.exa
 | [MEMORY_RAG.md](docs/MEMORY_RAG.md) | Memory RAG system: ChromaDB, vector retrieval, automatic archiving |
 | [REFLECTION.md](docs/REFLECTION.md) | Reflection system: profile updates, scoring engine, verification pipeline |
 | [NAPCAT_BRIDGE.md](docs/NAPCAT_BRIDGE.md) | QQ group chat bridge: NapCat deployment, dual-channel messaging, message filtering, session management |
-| [CRON_MAINTENANCE.md](docs/CRON_MAINTENANCE.md) | Cron jobs: profile detox (required), daily briefing and summary (optional) |
+| [CRON_MAINTENANCE.md](docs/CRON_MAINTENANCE.md) | Cron jobs：情绪波动、反思、画像更新、记忆去毒（必需）；NapCat 监控、早报、总结（选装） |
 
 ---
 

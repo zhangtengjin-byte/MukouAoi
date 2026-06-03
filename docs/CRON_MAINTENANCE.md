@@ -2,7 +2,7 @@
 
 ## 1. 概述
 
-Mukou Aoi 通过 Hermes Agent 的 cron 系统执行九种定时维护任务。本文档涵盖全部任务的定义、配置方法与启用/停用说明。
+Mukou Aoi 通过 Hermes Agent 的 cron 系统执行多种定时维护任务。本文档涵盖全部任务的定义、配置方法与启用/停用说明。
 
 **任务一览：**
 
@@ -13,10 +13,9 @@ Mukou Aoi 通过 Hermes Agent 的 cron 系统执行九种定时维护任务。�
 | 个体画像更新 | **REQUIRED** | 启用 | 每 60 分钟 | 扫描最近1小时消息，创建/更新个体库，执行遗忘 |
 | 每日用户画像更新 | **REQUIRED** | 启用 | 每天 23:00 | 通读用户画像，删除过时条目，添加新信息 |
 | 每日记忆去毒 | **REQUIRED** | 启用 | 每天 01:00 | ChromaDB 系统性清洗：去重、虚构检测、过期清理 |
-| NapCat 存活监控 | **REQUIRED** | 启用 | 每 5 分钟 | 检测 NapCat 服务与登录状态，掉线时告警 |
-| 每日早报 | OPTIONAL | 启用 | 每天 07:05 | 搜索当日新闻，以葵口吻播报 |
-| 每日总结 | OPTIONAL | 启用 | 每天 23:30 | 回顾当日对话并生成格式化日报 |
-| VPN 续费提醒 | OPTIONAL | 启用 | 每月 29 号 09:00 | 提醒续费 VPN |
+| NapCat 存活监控 | NapCat 依赖 | 跟随 NapCat 选装 | 每 5 分钟 | 检测 NapCat 服务与登录状态，掉线时告警 |
+| 每日早报 | 选装 | 关闭 | 每天 07:05 | 搜索当日新闻，以葵口吻播报 |
+| 每日总结 | 选装 | 关闭 | 每天 23:30 | 回顾当日对话并生成格式化日报 |
 
 > **提示：** 所有定时任务均通过 `hermes cron` CLI 管理。
 
@@ -197,7 +196,7 @@ Phase 3 — 矛盾检测
 
 ## 7. NapCat 存活监控（NapCat Watchdog）
 
-**状态：** REQUIRED（必须启用）
+**状态：** NapCat 依赖（跟随 NapCat 选装自动选装）
 **调度：** 每 5 分钟
 **模式：** no-agent 脚本
 
@@ -240,7 +239,7 @@ hermes cron create \
 
 ## 8. 每日早间新闻（Morning News Broadcast）
 
-**状态：** OPTIONAL
+**状态：** 选装（默认关闭）
 **调度：** 每天 07:05
 **模式：** LLM 驱动
 
@@ -267,7 +266,7 @@ hermes cron create \
 
 ## 9. 每日总结（Daily Summary）
 
-**状态：** OPTIONAL
+**状态：** 选装（默认关闭）
 **调度：** 每天 23:30
 **模式：** LLM 驱动
 
@@ -283,28 +282,12 @@ hermes cron create \
 
 ---
 
-## 10. VPN 续费提醒（VPN Renewal Reminder）
-
-**状态：** OPTIONAL
-**调度：** 每月 29 号 09:00
-**模式：** LLM 驱动
-
-每月固定提醒。以葵的语气活泼地提醒神大人续费 VPN。
-
-### 10.1 创建任务
-
-```bash
-hermes cron create \
-  --name vpn-renewal-reminder \
-  --schedule "0 9 29 * *"
-```
-
----
-
 ## A. 全部任务汇总表
 
 ```yaml
-# 一次性创建全部推荐 cron 任务
+# 全部 cron 任务创建命令
+# REQUIRED 任务 — 必须启用
+# 选装任务 — 按需启用
 # 部分任务需要对应的脚本/prompt文件已存在
 
 hermes cron create --name emotion-fluctuate --schedule "*/30 * * * *" --script ~/.hermes/scripts/emotion-fluctuate-v2.py --no-agent
@@ -312,10 +295,13 @@ hermes cron create --name reflection-engine --schedule "every 15m"   # LLM驱动
 hermes cron create --name individual-profile-update --schedule "every 60m"  # LLM驱动
 hermes cron create --name daily-profile-update --schedule "0 23 * * *"      # LLM驱动
 hermes cron create --name daily-memory-detox --schedule "0 1 * * *" --skill memory-rag-system  # LLM驱动
+
+# NapCat 依赖 — 部署了 NapCat 再启用
 hermes cron create --name napcat-watchdog --schedule "every 5m" --script ~/.hermes/scripts/napcat_watchdog.py --no-agent
-hermes cron create --name morning-news --schedule "05 7 * * *"     # OPTIONAL
-hermes cron create --name daily-summary --schedule "30 23 * * *"   # OPTIONAL
-hermes cron create --name vpn-renewal-reminder --schedule "0 9 29 * *"  # OPTIONAL
+
+# 选装 — 需手动执行下方命令
+# hermes cron create --name morning-news --schedule "05 7 * * *"
+# hermes cron create --name daily-summary --schedule "30 23 * * *"
 ```
 
 ## B. 故障排查
