@@ -13,15 +13,15 @@
   }
   .page { max-width: 700px; margin: 0 auto; }
   h1 {
-    font-size: 26px; font-weight: 600; color: #000;
-    letter-spacing: -0.3px;
+    font-size: 32px; font-weight: 600; color: #000;
+    letter-spacing: -0.5px;
     border-bottom: 2px solid #000;
-    padding-bottom: 14px;
-    margin-bottom: 10px;
+    padding-bottom: 16px;
+    margin-bottom: 12px;
   }
   .subtitle {
-    font-size: 14px; color: #666;
-    margin-bottom: 32px;
+    font-size: 16px; color: #666;
+    margin-bottom: 36px;
   }
   .diagram-box {
     border: 1px solid #ccc;
@@ -43,9 +43,9 @@
   <div class="subtitle">24 files across 6 categories</div>
 
   <div class="diagram-box">
-    <svg viewBox="0 0 650 840" xmlns="http://www.w3.org/2000/svg" font-family="'JetBrains Mono', monospace">
-      <rect width="650" height="840" fill="#fafafa"/>
-      <rect width="650" height="840" fill="url(#grid)" stroke="none"/>
+    <svg viewBox="0 0 650 920" xmlns="http://www.w3.org/2000/svg" font-family="'JetBrains Mono', monospace">
+      <rect width="650" height="920" fill="#fafafa"/>
+      <rect width="650" height="920" fill="url(#grid)" stroke="none"/>
       <defs>
         <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
           <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f0f0f0" stroke-width="0.5"/>
@@ -58,7 +58,7 @@
       <text x="155" y="32" font-size="8" fill="#999" dominant-baseline="middle">(root)</text>
 
       <!-- Vertical trunk -->
-      <line x1="85" y1="40" x2="85" y2="820" stroke="#ccc" stroke-width="1.5"/>
+      <line x1="85" y1="40" x2="85" y2="900" stroke="#ccc" stroke-width="1.5"/>
 
       <!-- Branch 1: Config files -->
       <line x1="85" y1="58" x2="120" y2="58" stroke="#ccc" stroke-width="1"/>
@@ -155,15 +155,15 @@
       <text x="148" y="645" font-size="8" fill="#555" dominant-baseline="middle">test_tone_map.py</text>
 
       <!-- Summary box -->
-      <rect x="120" y="682" width="460" height="90" rx="0" fill="none" stroke="#aaa" stroke-width="1" stroke-dasharray="4,3"/>
-      <text x="280" y="708" font-size="10" font-weight="500" fill="#555" text-anchor="middle">Summary</text>
-      <text x="280" y="730" font-size="9" fill="#888" text-anchor="middle">Plugins×2 | Docs×6 | Tests×4 | Emotions×24 | 1-click install</text>
+      <rect x="120" y="682" width="460" height="130" rx="0" fill="none" stroke="#aaa" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="280" y="718" font-size="10" font-weight="500" fill="#555" text-anchor="middle">Summary</text>
+      <text x="280" y="750" font-size="9" fill="#888" text-anchor="middle">Plugins×2 | Docs×6 | Tests×4 | Emotions×24 | 1-click install</text>
 
       <!-- Legend -->
-      <rect x="120" y="796" width="12" height="10" rx="0" fill="#fff" stroke="#555" stroke-width="1.5"/>
-      <text x="138" y="804" font-size="9" fill="#888" dominant-baseline="middle">directory</text>
-      <rect x="220" y="796" width="12" height="10" rx="0" fill="#f5f5f5" stroke="#ccc" stroke-width="1"/>
-      <text x="238" y="804" font-size="9" fill="#888" dominant-baseline="middle">file</text>
+      <rect x="120" y="840" width="14" height="12" rx="0" fill="#fff" stroke="#555" stroke-width="1.5"/>
+      <text x="142" y="850" font-size="9" fill="#888" dominant-baseline="middle">directory</text>
+      <rect x="230" y="840" width="14" height="12" rx="0" fill="#f5f5f5" stroke="#ccc" stroke-width="1"/>
+      <text x="252" y="850" font-size="9" fill="#888" dominant-baseline="middle">file</text>
     </svg>
   </div>
 
