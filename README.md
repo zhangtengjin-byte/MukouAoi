@@ -120,7 +120,7 @@ USER_PRONOUNS = ["User", "user"]
 
 ## Project Structure
 
-<img src="assets/structure-bw.png" alt="Mukou Aoi Project Structure" width="80%"/>
+![Mukou Aoi Project Structure](assets/structure-bw.png)
 
 ---
 
