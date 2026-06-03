@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/banner-contour.png" alt="Mukou Aoi" width="100%"/>
+</p>
+
 # Mukou Aoi — Hermes Agent 人格化引擎套件
 
 让 AI Agent 不只是回答问题，而是有血有肉地活着。
