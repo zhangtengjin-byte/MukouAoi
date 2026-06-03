@@ -12,7 +12,7 @@
 
 ---
 
-## Architecture
+## 架构图
 
 <p align="center">
   <a href="assets/architecture-v2.png" target="_blank"><img src="assets/architecture-v2.png" alt="Mukou Aoi Architecture" width="90%"/></a>
@@ -22,53 +22,53 @@
 
 ---
 
-## Components
+## 组件
 
-| Component | Description |
+| 组件 | 说明 |
 |-----------|-------------|
-| Emotion Governor | 8-dimensional Plutchik emotion vector with keyword triggers, 16 compound emotions, natural fluctuation decay, and style injection |
-| Mode Switch | `@work` / `@life` mode switching with automatic response length constraints in life mode |
-| Memory RAG | ChromaDB + BGE vector retrieval for persistent agent memory |
-| Reflection System | Automatic profile archiving, individual/recent reflection pipelines, scoring engine with evidence verification |
-| QQ Bridge | NapCat + Webhook group chat bridge with message scoring, session management, and multi-group support |
-| Sticker System | Emotion-matched GIF auto-append for more expressive conversations |
+| Emotion Governor | 8 维 Plutchik 情绪向量，关键词触发，16 种复合情绪，自然波动衰减，风格注入 |
+| Mode Switch | `@work` / `@life` 模式切换，生活模式自动限制回复长度 |
+| Memory RAG | ChromaDB + BGE 向量检索，持久化 Agent 记忆 |
+| Reflection System | 自动画像归档，个体/近期反思流水线，评分引擎与证据校验 |
+| QQ Bridge | NapCat + Webhook 群聊桥接，消息评分，会话管理，多群支持 |
+| Sticker System | 情绪匹配表情包自动追加，让对话更有表现力 |
 
-Combined with SOUL.md / MEMORY.md persistent persona configuration, the agent retains identity across restarts.
+配合 SOUL.md / MEMORY.md 持久人格配置，Agent 在重启后保持身份一致。
 
 ---
 
-## Prerequisites
+## 前置条件
 
-- Hermes Agent (v0.15+ recommended)
+- Hermes Agent（推荐 v0.15+）
 - Python >= 3.11
-- (Optional) ChromaDB for Memory RAG
-- (Optional) SiliconFlow API Key for BGE vector embeddings
-- (Optional) NapCat + Docker for QQ group chat bridge
+- （可选）ChromaDB 用于 Memory RAG
+- （可选）SiliconFlow API Key 用于 BGE 向量嵌入
+- （可选）NapCat + Docker 用于 QQ 群聊桥接
 
 ---
 
-## Installation
+## 安装
 
-### From Source
+### 源码安装
 
 ```bash
 git clone https://github.com/zhangtengjin-byte/MukouAoi.git
 cd MukouAoi
 pip install -e .
 
-# One-click deploy to Hermes
+# 一键部署到 Hermes
 mukou-aoi-install
 ```
 
-### Manual Deployment
+### 手动部署
 
-1. Copy `plugins/emotion-governor/` to `~/.hermes/hermes-agent/plugins/`
-2. Copy `plugins/mode-switch/` to `~/.hermes/hermes-agent/plugins/`
-3. Copy `mukou_aoi/examples/tone_map.json` to `~/.hermes/tone_map.json`
-4. Enable plugins in `~/.hermes/config.yaml`
-5. Restart Hermes Gateway
+1. 将 `plugins/emotion-governor/` 复制到 `~/.hermes/hermes-agent/plugins/`
+2. 将 `plugins/mode-switch/` 复制到 `~/.hermes/hermes-agent/plugins/`
+3. 将 `mukou_aoi/examples/tone_map.json` 复制到 `~/.hermes/tone_map.json`
+4. 在 `~/.hermes/config.yaml` 中启用插件
+5. 重启 Hermes Gateway
 
-### Configuration Example
+### 配置示例
 
 ```yaml
 # ~/.hermes/config.yaml
@@ -79,45 +79,45 @@ plugins:
     enabled: true
 ```
 
-Full configuration example at [examples/config.example.yaml](examples/config.example.yaml).
+完整配置示例见 [examples/config.example.yaml](examples/config.example.yaml)。
 
 ---
 
-## Documentation
+## 文档
 
-| Document | Description |
+| 文档 | 说明 |
 |----------|-------------|
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture overview, data flow, component relationships |
-| [EMOTION_SYSTEM.md](docs/EMOTION_SYSTEM.md) | Emotion system deep dive: 8-dimensional vector, 16 compound emotions, algorithms |
-| [MEMORY_RAG.md](docs/MEMORY_RAG.md) | Memory RAG system: ChromaDB, vector retrieval, automatic archiving |
-| [REFLECTION.md](docs/REFLECTION.md) | Reflection system: profile updates, scoring engine, verification pipeline |
-| [NAPCAT_BRIDGE.md](docs/NAPCAT_BRIDGE.md) | QQ group chat bridge: NapCat deployment, dual-channel messaging, message filtering, session management |
-| [CRON_MAINTENANCE.md](docs/CRON_MAINTENANCE.md) | Cron jobs：情绪波动、反思、画像更新、记忆去毒（必需）；NapCat 监控、早报、总结（选装） |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | 系统架构概览，数据流，组件关系 |
+| [EMOTION_SYSTEM.md](docs/EMOTION_SYSTEM.md) | 情绪系统深度解析：8 维向量，16 种复合情绪，算法 |
+| [MEMORY_RAG.md](docs/MEMORY_RAG.md) | 记忆 RAG 系统：ChromaDB，向量检索，自动归档 |
+| [REFLECTION.md](docs/REFLECTION.md) | 反思系统：画像更新，评分引擎，校验流水线 |
+| [NAPCAT_BRIDGE.md](docs/NAPCAT_BRIDGE.md) | QQ 群聊桥接：NapCat 部署，双通道消息，消息过滤，会话管理 |
+| [CRON_MAINTENANCE.md](docs/CRON_MAINTENANCE.md) | 定时任务：情绪波动、反思、画像更新、记忆去毒（必需）；NapCat 监控、早报、总结（选装） |
 
 ---
 
-## Customization
+## 自定义
 
-### Emotion Expression
+### 情绪表达
 
-Edit `~/.hermes/tone_map.json` to customize per-emotion:
-- **Style description**: Agent's tone under each emotion state
-- **Example sentences**: Templates injected into LLM context
-- **Particles**: Sentence-ending particles list
-- **Banned words**: Words prohibited in the current emotional state
-- **Emoji**: Emoticons corresponding to each emotion
+编辑 `~/.hermes/tone_map.json` 自定义每种情绪：
+- **风格描述**：Agent 在各情绪状态下的语气
+- **例句**：注入 LLM 上下文的模板
+- **语气词**：句末语气词列表
+- **禁用词**：当前情绪状态下禁止使用的词
+- **Emoji**：每种情绪对应的表情符号
 
-### Keyword Mapping
+### 关键词映射
 
-Edit `~/.hermes/emotion_map.json` to configure:
-- `_verb_emotions`: Verb-to-emotion mapping
-- `_adjective_emotions`: Adjective-to-emotion mapping
-- `_negation_keywords`: Negation word list
-- `_intensity_map`: Adverb-to-intensity multipliers
+编辑 `~/.hermes/emotion_map.json` 配置：
+- `_verb_emotions`：动词到情绪的映射
+- `_adjective_emotions`：形容词到情绪的映射
+- `_negation_keywords`：否定词列表
+- `_intensity_map`：副词到强度倍数映射
 
-### Agent Identity
+### Agent 身份
 
-Modify `AGENT_PRONOUNS` and `USER_PRONOUNS` in `plugins/emotion-governor/__init__.py`:
+修改 `plugins/emotion-governor/__init__.py` 中的 `AGENT_PRONOUNS` 和 `USER_PRONOUNS`：
 
 ```python
 AGENT_PRONOUNS = ["YourAgentName", "your-agent"]
@@ -126,7 +126,7 @@ USER_PRONOUNS = ["User", "user"]
 
 ---
 
-## Project Structure
+## 项目结构
 
 <p align="center">
   <a href="assets/structure-1780516769.png" target="_blank"><img src="assets/structure-1780516769.png" alt="Mukou Aoi Project Structure" width="90%"/></a>
@@ -134,22 +134,22 @@ USER_PRONOUNS = ["User", "user"]
 
 ---
 
-## Contributing
+## 贡献
 
-If you have ideas for making AI agents more human, feel free to open an Issue or PR.
-
----
-
-## License
-
-MIT License — free to use, modify, and distribute. Retain the original copyright notice.
+如果你有让 AI Agent 更有人性的想法，欢迎提交 Issue 或 PR。
 
 ---
 
-## Acknowledgements
+## 许可证
 
-- [Hermes Agent](https://github.com/NousResearch/hermes-agent) — The underlying AI Agent framework
-- [西园寺の双黄又蛋蛋](https://github.com/GiriYomi) — Provided valuable ideas and insights
-- [Dear Mr. N.A.](mailto:1065696132@qq.com) — Provided stress test group chat channels
-- [ChromaDB](https://www.trychroma.com/) — Vector database
-- [NapCat](https://napcat.napneko.icu/) — QQ framework
+MIT License — 可自由使用、修改和分发。保留原始版权声明。
+
+---
+
+## 致谢
+
+- [Hermes Agent](https://github.com/NousResearch/hermes-agent) — 底层 AI Agent 框架
+- [西园寺の双黄又蛋蛋](https://github.com/GiriYomi) — 提供有价值的想法和见解
+- [Dear Mr. N.A.](mailto:1065696132@qq.com) — 提供压力测试群聊渠道
+- [ChromaDB](https://www.trychroma.com/) — 向量数据库
+- [NapCat](https://napcat.napneko.icu/) — QQ 框架
