@@ -28,3 +28,6 @@ Thumbs.db
 # These contain private data and should stay local
 hermes_home/
 *.bak
+
+# Biller reference files (local only)
+assets/biller_ref/

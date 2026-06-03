@@ -14,7 +14,7 @@
 | **Mode Switch** | `@work` / `@life` 模式切换，生活模式自动约束回复长度 |
 | **Memory RAG** | ChromaDB + BGE 向量检索，让 Agent 记住你是谁 |
 | **Reflection System** | 画像自动更新 + 近期/个体反思 + 打分引擎 + 验证管道 |
-| **QQ Bridge** | NapCat + Webhook 群聊桥接，消息过滤评分，会话管理 |
+| **QQ Bridge** | NapCat + Webhook 群聊桥接，消息过滤评分，会话管理，压力测试群聊接入 |
 | **Sticker System** | 情绪匹配表情包自动追加，让对话更生动 |
 
 搭配 SOUL.md / MEMORY.md 持久化人格设定，Agent 重启后依然知道「我是谁」。
@@ -195,6 +195,7 @@ MIT License — 可自由使用、修改、商用，保留原始版权声明即�
 ## 🙏 致谢
 
 - [Hermes Agent](https://github.com/NousResearch/hermes-agent) — 强大的 AI Agent 框架
-- [蛋蛋](https://github.com/GiriYomi) — 提供了很多思路上的帮助
+- [西园寺の双黄又蛋蛋](https://github.com/GiriYomi) — 提供了很多思路上的帮助
+- [Dear Mr. N.A.](mailto:1065696132@qq.com) — 提供压力测试群聊渠道
 - [ChromaDB](https://www.trychroma.com/) — 向量数据库
 - [NapCat](https://napcat.napneko.icu/) — QQ 框架
