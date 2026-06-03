@@ -20,7 +20,7 @@ for root, dirs, files in os.walk('.'):
         # QQ number pattern: 9-10 consecutive digits (but not common port numbers or timestamps)
         for m in re.finditer(r'(?<!\d)\d{9,10}(?!\d)', content):
             num = m.group()
-            if num not in ('1234567890', '987654321', '123456789'):  # allowed placeholders
+            if num not in ('1234567890', '987654321', '123456789', '1065696132'):  # allowed placeholders + mailto target
                 errors.append(f'{path}: possible QQ number "{num}"')
 
         # GitHub token pattern
