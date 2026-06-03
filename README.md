@@ -8,7 +8,7 @@
 
 ## Architecture
 
-![Mukou Aoi Architecture](assets/architecture.png)
+![Mukou Aoi Architecture](assets/architecture-bw.png)
 
 架构说明见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
@@ -120,44 +120,7 @@ USER_PRONOUNS = ["User", "user"]
 
 ## Project Structure
 
-```
-MukouAoi/
-├── pyproject.toml              # Python package definition
-├── LICENSE                     # MIT
-├── README.md                   # This file
-├── assets/
-│   ├── architecture.png        # Architecture diagram
-│   └── architecture.html       # Editable diagram source
-├── docs/                       # Documentation
-│   ├── ARCHITECTURE.md
-│   ├── EMOTION_SYSTEM.md
-│   ├── MEMORY_RAG.md
-│   ├── REFLECTION.md
-│   ├── NAPCAT_BRIDGE.md
-│   └── CRON_MAINTENANCE.md
-├── plugins/                    # Hermes plugins
-│   ├── emotion-governor/       # Emotion engine
-│   │   ├── __init__.py
-│   │   └── plugin.yaml
-│   └── mode-switch/            # Mode switching
-│       ├── __init__.py
-│       ├── mode.txt
-│       └── plugin.yaml
-├── mukou_aoi/                  # Python package
-│   ├── __init__.py
-│   ├── install.py              # One-click install script
-│   └── examples/               # Example data
-│       └── tone_map.json
-├── examples/                   # Configuration examples
-│   └── config.example.yaml
-├── scripts/ci/                 # CI test scripts
-│   ├── test_no_leaks.py
-│   ├── test_emotion.py
-│   ├── test_mode_switch.py
-│   └── test_tone_map.py
-└── .github/workflows/
-    └── ci.yml
-```
+![Mukou Aoi Project Structure](assets/structure-bw.png)
 
 ---
 
